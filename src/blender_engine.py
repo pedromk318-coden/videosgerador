@@ -121,7 +121,8 @@ def main():
             obj.keyframe_insert(data_path="location",frame=start)
         start=end+1
     scene=bpy.context.scene
-    scene.render.engine='BLENDER_EEVEE_NEXT' if bpy.app.version >= (4,0,0) else 'BLENDER_EEVEE'
+    engine_ids={item.identifier for item in bpy.types.RenderSettings.bl_rna.properties["engine"].enum_items}
+    scene.render.engine="BLENDER_EEVEE_NEXT" if "BLENDER_EEVEE_NEXT" in engine_ids else "BLENDER_EEVEE"
     scene.render.resolution_x=w; scene.render.resolution_y=h; scene.render.resolution_percentage=100
     scene.render.fps=fps; scene.frame_start=1; scene.frame_end=max(2,start-1)
     scene.render.image_settings.file_format='FFMPEG'
