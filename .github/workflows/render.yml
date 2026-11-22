@@ -25,41 +25,7 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
         run: |
           if [ "$EVENT_NAME" = "push" ]; then
-            mapfile -t files < <(git show --pretty=format: --name-only HEAD | grep -E '^projects/[^/]+[.]json
-            if [ "${#files[@]}" -ne 1 ]; then
-              echo "Envie um arquivo JSON de projeto por commit para renderizar automaticamente."
-              exit 1
-            fi
-            selected="${files[0]}"
-          else
-            selected="$REQUESTED_PROJECT"
-          fi
-          case "$selected" in projects/*.json) ;; *) echo "O arquivo deve ficar dentro de projects/ e terminar em .json"; exit 1;; esac
-          test -f "$selected" || { echo "Arquivo não encontrado: $selected"; exit 1; }
-          echo "path=$selected" >> "$GITHUB_OUTPUT"
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - name: Install FFmpeg and dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
-          python -m pip install -r requirements.txt
-      - name: Validate project and prepare scenes
-        run: python src/project_validator.py --input "${{ steps.project.outputs.path }}" --output scenes.json
-      - name: Render animation without AI
-        run: python src/animation_engine.py --input scenes.json --output output/video.mp4
-      - name: Generate subtitles
-        run: python src/subtitles.py --input scenes.json --output output/subtitles.srt
-      - name: Add ambient audio
-        run: python src/audio_engine.py --input scenes.json --video output/video.mp4 --output output/video_with_audio.mp4
-      - name: Upload finished video
-        uses: actions/upload-artifact@v4
-        with:
-          name: video-completo
-          path: output/
-          if-no-files-found: error
- || true)
+            mapfile -t files < <(git show --pretty=format: --name-only HEAD | grep -E '^projects/[^/]+[.]json$' || true)
             if [ "${#files[@]}" -ne 1 ]; then
               echo "Envie um arquivo JSON de projeto por commit para renderizar automaticamente."
               exit 1
