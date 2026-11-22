@@ -1,16 +1,21 @@
 # VideosGerador 🎬
 
-Primeira versão do gerador de vídeos verticais (9:16), com roteiro-base por ideia e renderização MP4 usando cards animados.
+Gerador experimental de vídeos verticais (9:16) a partir de uma ideia, com cenas visuais procedurais criadas pelo próprio motor e montagem MP4 via FFmpeg.
 
-## Interface
-Abra `index.html` no navegador. Escreva a ideia, escolha quantidade e duração das cenas e baixe `scenes.json`.
-
-## Gerar no GitHub Actions
+## Como executar no GitHub
 1. Abra a aba **Actions**.
-2. Selecione **Render video** e clique em **Run workflow**.
-3. Preencha a ideia, número de cenas (1–10) e duração (1–60 segundos).
-4. Inicie o workflow e espere concluir.
-5. Baixe o artefato `video-mp4`.
+2. Selecione **Render video** e clique **Run workflow**.
+3. Informe a ideia, quantidade de cenas, duração e gênero.
+4. Aguarde o workflow terminar e baixe o artefato **video-mp4**.
 
-## Limitações desta versão
-A ideia é distribuída em cartões de cena com textos-base e fundos em gradiente com zoom. Ainda não usa IA para criar histórias completas, imagens, narração, legendas ou Parallax 2.5D real. Esses recursos serão adicionados gradualmente.
+## O motor visual próprio
+O renderizador em `src/render.py` cria imagens originais por desenho procedural com Pillow (gradientes, luzes, estrelas, montanhas em camadas, névoa e composição de texto), e anima a câmera com zoom lento e deriva lateral usando FFmpeg. Não depende de Google Flow nem de imagens externas.
+
+## Limitações atuais (transparentes)
+- A arte é procedural/abstrata e não interpreta semanticamente cada ideia como um gerador de imagens por IA.
+- O roteiro é uma estrutura-base determinística, não texto criado por um modelo de linguagem.
+- Ainda não há narração de áudio, trilha, efeitos sonoros, legendas sincronizadas, segmentação real em camadas 3D ou Parallax 2.5D com depth map.
+- A próxima evolução é enriquecer o motor procedural e adicionar camadas/movimento, depois integrar serviços de IA opcionalmente.
+
+## Tecnologias
+Python, Pillow e FFmpeg. Renderização em GitHub Actions (runner Ubuntu).
