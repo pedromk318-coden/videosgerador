@@ -102,7 +102,7 @@ def main():
             vf=f"zoompan=z='min(zoom+0.0006,1.06)':x='iw/2-(iw/zoom/2)+sin(on/45)*12':y='ih/2-(ih/zoom/2)':d={frames}:s={w}x{h}:fps={fps},format=yuv420p"
             run(["ffmpeg","-hide_banner","-loglevel","error","-y","-loop","1","-i",str(image),"-vf",vf,"-t",str(duration),"-r",str(fps),"-pix_fmt","yuv420p","-an",str(clip)])
             clips.append(clip)
-        concat=td/"concat.txt"; concat.write_text("".join("file '"+c.as_posix()+"'\\n" for c in clips),encoding="utf-8")
+        concat=td/"concat.txt"; concat.write_text("".join("file '"+c.as_posix()+"'\n" for c in clips),encoding="utf-8")
         run(["ffmpeg","-hide_banner","-loglevel","error","-y","-f","concat","-safe","0","-i",str(concat),"-c","copy",str(out)])
     print("Vídeo gerado pelo motor procedural:",out)
 if __name__=="__main__": main()
