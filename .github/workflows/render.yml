@@ -1,22 +1,39 @@
-name: Render video from complete script
+name: Render uploaded video project
 on:
+  push:
+    paths:
+      - "projects/*.json"
   workflow_dispatch:
     inputs:
-      script:
-        description: "Cole aqui o roteiro completo da história"
+      project_file:
+        description: "Caminho do arquivo JSON dentro de projects/"
         required: true
+        default: "projects/meu-video.json"
         type: string
-      genre:
-        description: "Clima visual"
-        required: true
-        default: "cinematográfico"
-        type: choice
-        options: [cinematográfico, fantasia, aventura, mistério, drama, ficção científica]
+permissions:
+  contents: read
 jobs:
   render:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Select project file
+        id: project
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            mapfile -t files < <(git diff-tree --no-commit-id --name-only -r HEAD -- 'projects/*.json')
+            if [ "${#files[@]}" -ne 1 ]; then
+              echo "Envie um arquivo JSON de projeto por commit para renderizar automaticamente."
+              exit 1
+            fi
+            selected="${files[0]}"
+          else
+            selected="${{ inputs.project_file }}"
+          fi
+          case "$selected" in projects/*.json) ;; *) echo "O arquivo deve ficar dentro de projects/ e terminar em .json"; exit 1;; esac
+          test -f "$selected" || { echo "Arquivo não encontrado: $selected"; exit 1; }
+          echo "path=$selected" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -25,20 +42,15 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ffmpeg
           python -m pip install -r requirements.txt
-      - name: Build scenes and timings from script
-        env:
-          VIDEO_SCRIPT: ${{ inputs.script }}
-          VIDEO_GENRE: ${{ inputs.genre }}
-        run: |
-          printf '%s' "$VIDEO_SCRIPT" > roteiro.txt
-          python src/idea_to_scenes.py --script-file roteiro.txt --genre "$VIDEO_GENRE" --output scenes.json
-      - name: Render animated scenes offline (no AI)
+      - name: Validate project and prepare scenes
+        run: python src/project_validator.py --input "${{ steps.project.outputs.path }}" --output scenes.json
+      - name: Render animation without AI
         run: python src/animation_engine.py --input scenes.json --output output/video.mp4
       - name: Generate subtitles
         run: python src/subtitles.py --input scenes.json --output output/subtitles.srt
       - name: Add ambient audio
         run: python src/audio_engine.py --input scenes.json --video output/video.mp4 --output output/video_with_audio.mp4
-      - name: Upload complete package
+      - name: Upload finished video
         uses: actions/upload-artifact@v4
         with:
           name: video-completo
