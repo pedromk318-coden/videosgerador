@@ -23,6 +23,7 @@ jobs:
         env:
           REQUESTED_PROJECT: ${{ inputs.project_file }}
           EVENT_NAME: ${{ github.event_name }}
+          REQUESTED_MODE: ${{ inputs.render_mode }}
         run: |
           if [ "$EVENT_NAME" = "push" ]; then
             mapfile -t files < <(find projects -maxdepth 1 -type f -name '*.json' ! -name 'modelo-projeto.json' | sort)
@@ -39,6 +40,8 @@ jobs:
           test -f "$selected" || { echo "Arquivo não encontrado: $selected"; exit 1; }
           echo "Projeto selecionado: $selected"
           echo "path=$selected" >> "$GITHUB_OUTPUT"
+          if [ "$EVENT_NAME" = "push" ]; then mode="normal"; else mode="$REQUESTED_MODE"; fi
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -56,6 +59,7 @@ jobs:
         run: blender -b -t 2 --python-expr "import bpy; print('Blender headless OK:', bpy.app.version_string)"
       - name: Render animation without AI
         env:
+          RENDER_MODE: ${{ steps.project.outputs.mode }}
           LIBGL_ALWAYS_SOFTWARE: "1"
           EGL_PLATFORM: "surfaceless"
         run: blender -b -t 2 --python src/blender_engine.py -- --input scenes.json --output output/video.mp4
@@ -67,7 +71,10 @@ jobs:
         run: |
           mkdir -p output
           FPS=$(python -c "import json; print(int(json.load(open('scenes.json')).get('fps',24)))")
-          ffmpeg -hide_banner -loglevel error -y -framerate "$FPS" -i output/frames/frame_%04d.png -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p -movflags +faststart output/video.mp4
+          PRESET=medium
+          CRF=21
+          if [ "${{ steps.project.outputs.mode }}" = "preview" ]; then PRESET=ultrafast; CRF=26; elif [ "${{ steps.project.outputs.mode }}" = "cinematic" ]; then PRESET=slow; CRF=18; fi
+          ffmpeg -hide_banner -loglevel error -y -framerate "$FPS" -i output/frames/frame_%04d.png -c:v libx264 -preset "$PRESET" -crf "$CRF" -pix_fmt yuv420p -movflags +faststart output/video.mp4
           test -s output/video.mp4
       - name: Generate subtitles
         run: python src/subtitles.py --input scenes.json --output output/subtitles.srt
