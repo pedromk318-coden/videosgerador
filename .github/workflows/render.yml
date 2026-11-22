@@ -32,8 +32,8 @@ jobs:
         run: |
           printf '%s' "$VIDEO_SCRIPT" > roteiro.txt
           python src/idea_to_scenes.py --script-file roteiro.txt --genre "$VIDEO_GENRE" --output scenes.json
-      - name: Render video
-        run: python src/render.py --input scenes.json --output output/video.mp4
+      - name: Render animated scenes offline (no AI)
+        run: python src/animation_engine.py --input scenes.json --output output/video.mp4
       - name: Generate subtitles
         run: python src/subtitles.py --input scenes.json --output output/subtitles.srt
       - name: Add ambient audio
