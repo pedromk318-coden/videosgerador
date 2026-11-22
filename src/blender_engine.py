@@ -125,11 +125,14 @@ def main():
     scene.render.engine="BLENDER_EEVEE_NEXT" if "BLENDER_EEVEE_NEXT" in engine_ids else "BLENDER_EEVEE"
     scene.render.resolution_x=w; scene.render.resolution_y=h; scene.render.resolution_percentage=100
     scene.render.fps=fps; scene.frame_start=1; scene.frame_end=max(2,start-1)
-    scene.render.image_settings.file_format='FFMPEG'
-    scene.render.ffmpeg.format='MPEG4'; scene.render.ffmpeg.codec='H264'; scene.render.ffmpeg.constant_rate_factor='MEDIUM'
-    scene.render.filepath=str(Path(args.output).resolve())
-    scene.view_settings.view_transform='Standard'
+    # Blender 5 removed FFMPEG from image_settings.file_format. Render PNG frames;
+    # the workflow assembles them into MP4 with the system FFmpeg afterwards.
+    scene.render.image_settings.file_format='PNG'
     scene.render.image_settings.color_mode='RGB'
+    frames_dir=Path(args.output).parent / 'frames'
+    frames_dir.mkdir(parents=True,exist_ok=True)
+    scene.render.filepath=str((frames_dir / 'frame_').resolve())
+    scene.view_settings.view_transform='Standard'
     scene.camera.data.dof.use_dof=True; scene.camera.data.dof.focus_object=person[0]; scene.camera.data.dof.aperture_fstop=5.6
     # Smooth interpolation for cinematic camera motion.
     for obj in (cam,):
