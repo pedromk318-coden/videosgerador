@@ -47,9 +47,9 @@ jobs:
         run: python src/subtitles.py --input scenes.json --output output/subtitles.srt
       - name: Add procedural ambient audio
         run: python src/audio_engine.py --input scenes.json --video output/video.mp4 --output output/video_with_audio.mp4
-      - name: Upload MP4
+      - name: Upload video and subtitles
         uses: actions/upload-artifact@v4
         with:
-          name: video-mp4
-          path: output/*.mp4
+          name: video-completo
+          path: output/
           if-no-files-found: error
