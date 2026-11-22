@@ -1,38 +1,42 @@
 # VideosGerador 🎬
 
-Gerador **offline e sem IA** de vídeos verticais a partir de um roteiro completo.
+Renderizador de projetos de vídeo em JSON. O planejamento criativo pode ser feito no Claude ou manualmente; a renderização é procedural e **não usa IA nem APIs pagas**.
 
-## Como funciona
-1. Abra **Actions**.
-2. Escolha **Render video from complete script** e clique em **Run workflow**.
-3. Cole o roteiro completo e escolha o estilo visual.
-4. O planejador divide o texto em cenas e calcula a duração de cada trecho.
-5. O motor desenha e anima cada cena localmente com Python/Pillow e monta o MP4 com FFmpeg.
-6. Baixe o artefato **video-completo**, que contém o vídeo e as legendas SRT.
+## Fluxo novo: enviar arquivo e renderizar
+1. Peça ao Claude para criar um arquivo JSON seguindo `projects/modelo-projeto.json`.
+2. Salve o arquivo com extensão `.json`.
+3. No GitHub, abra a pasta `projects/` e envie o JSON usando **Add file → Upload files**.
+4. Faça commit. O envio de um único JSON nessa pasta inicia a renderização automaticamente.
+5. Abra **Actions**, entre na execução e baixe o artefato `video-completo`.
 
-Não existe quantidade fixa de cenas nem duração fixa por cena. A divisão e a duração são calculadas a partir do roteiro.
+Também é possível abrir **Actions → Render uploaded video project → Run workflow** e informar o caminho do JSON que já está no repositório, por exemplo `projects/meu-video.json`.
 
-## Motor de animação sem IA
-O arquivo `src/animation_engine.py` cria os quadros do vídeo do zero, sem chamar Claude, ChatGPT, Flow, Gemini ou qualquer API externa. Ele inclui:
-- Cenários procedurais com variações de floresta, castelo, cidade, espaço, litoral e paisagem.
-- Personagem desenhado pelo próprio código, com rosto, roupa, braços e pernas.
-- Animações básicas de caminhada, corrida e movimento em repouso.
-- Movimento de elementos do cenário em velocidades diferentes para simular profundidade 2.5D.
-- Luz, atmosfera, paleta de cores por gênero e movimento contínuo entre quadros.
+## Formato do projeto
+Veja o exemplo completo em [projects/modelo-projeto.json](projects/modelo-projeto.json). Campos principais:
+- `title`: título do vídeo.
+- `style`: estilo visual, como `fantasia`, `aventura`, `mistério`, `drama` ou `cinematográfico`.
+- `format`: formato, normalmente `9:16`.
+- `scenes`: lista de cenas na ordem de exibição.
+- Cada cena deve informar `duration` em segundos e `narration` (ou `script` / `text`).
+- Campos opcionais: `visual_description`, `environment`, `action` e `camera`.
 
-O resultado é uma animação procedural estilizada. Não é um filme 3D realista nem gera modelos complexos a partir do significado de qualquer frase: o motor usa regras e palavras-chave para escolher cenários e ações. Personagens e recursos visuais podem ser ampliados gradualmente.
+O validador aceita até 150 cenas, com duração entre 1 e 60 segundos cada. Ele verifica o JSON antes de renderizar e mostra erros de forma clara.
+
+## Prompt para pedir o arquivo ao Claude
+"Crie um arquivo JSON de projeto de vídeo seguindo exatamente o formato de projects/modelo-projeto.json. Defina título, estilo visual, formato 9:16 e todas as cenas na ordem correta. Para cada cena informe duração em segundos, descrição visual, ambiente, ação, movimento de câmera e narração. Não escreva explicações fora do JSON. Não use Markdown nem blocos de código. Garanta que o JSON seja válido."
+
+## Motor offline sem IA
+`src/animation_engine.py` desenha os quadros usando Python/Pillow e monta o MP4 com FFmpeg. Ele usa cenários e personagens procedurais, animações básicas e movimento em camadas para simular profundidade 2.5D. O projeto JSON fornece a direção criativa; o renderizador transforma os dados em animação usando regras fixas, sem chamar Claude, ChatGPT, Flow, Gemini ou qualquer serviço externo.
+
+O resultado é uma animação procedural estilizada, não um filme 3D realista. A descrição de cena orienta o contexto e as palavras-chave disponíveis no motor; nem todos os movimentos ou objetos descritos já têm representação visual própria.
 
 ## Tecnologias
-- Python e Pillow: desenho dos quadros.
-- FFmpeg: codificação e montagem do vídeo.
-- GitHub Actions: execução automática do processo.
+Python, Pillow, FFmpeg e GitHub Actions. O Actions tem limites próprios de uso gratuito.
 
-Não precisa de chave de API, conta em serviço de IA ou assinatura. O GitHub Actions tem limites próprios de uso gratuito conforme o tipo de conta e repositório.
-
-## Estrutura
-- `src/story_engine.py`: divisão do roteiro e duração das cenas.
-- `src/idea_to_scenes.py`: interface de geração do plano de cenas.
-- `src/animation_engine.py`: motor visual e animação quadro a quadro.
+## Arquivos principais
+- `projects/modelo-projeto.json`: exemplo de entrada.
+- `src/project_validator.py`: valida e normaliza projetos.
+- `src/animation_engine.py`: renderizador quadro a quadro.
 - `src/subtitles.py`: legendas SRT.
 - `src/audio_engine.py`: trilha ambiente sintética.
 - `.github/workflows/render.yml`: automação do GitHub.
