@@ -22,9 +22,10 @@ jobs:
         shell: bash
         env:
           REQUESTED_PROJECT: ${{ inputs.project_file }}
+          EVENT_NAME: ${{ github.event_name }}
         run: |
-          if [ "${{ github.event_name }}" = "push" ]; then
-            mapfile -t files < <(git diff-tree --no-commit-id --name-only -r HEAD -- 'projects/*.json')
+          if [ "$EVENT_NAME" = "push" ]; then
+            mapfile -t files < <(git diff-tree --root --no-commit-id --name-only -r HEAD -- 'projects/*.json')
             if [ "${#files[@]}" -ne 1 ]; then
               echo "Envie um arquivo JSON de projeto por commit para renderizar automaticamente."
               exit 1
