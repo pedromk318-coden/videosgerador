@@ -51,6 +51,12 @@ jobs:
         run: python src/project_validator.py --input "${{ steps.project.outputs.path }}" --output scenes.json
       - name: Render animation without AI
         run: blender -b -t 2 --python src/blender_engine.py -- --input scenes.json --output output/video.mp4
+      - name: Assemble MP4 with FFmpeg
+        run: |
+          mkdir -p output
+          FPS=$(python -c "import json; print(int(json.load(open('scenes.json')).get('fps',24)))")
+          ffmpeg -hide_banner -loglevel error -y -framerate "$FPS" -i output/frames/frame_%04d.png -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p -movflags +faststart output/video.mp4
+          test -s output/video.mp4
       - name: Generate subtitles
         run: python src/subtitles.py --input scenes.json --output output/subtitles.srt
       - name: Add ambient audio
