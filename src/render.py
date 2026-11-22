@@ -68,7 +68,7 @@ def main():
   td=Path(tmp); clips=[]
   for i,s in enumerate(scenes,1):
    dur=max(1,float(s.get('duration',10))); frames=int(dur*fps); clip=td/f'clip_{i}.mp4'; draw_layers(s,(w,h),i,idea,genre,td)
-   filt=f'[0:v]zoompan=z=1.0005:d={frames}:s={w}x{h}:fps={fps},format=rgba[b];[1:v]zoompan=z=1.0015:d={frames}:s={w}x{h}:fps={fps},format=rgba[m];[2:v]zoompan=z=1.0025:d={frames}:s={w}x{h}:fps={fps},format=rgba[f];[3:v]zoompan=z=1.0002:d={frames}:s={w}x{h}:fps={fps},format=rgba[t];[b][m]overlay=0:0[x];[x][f]overlay=0:0[y];[y][t]overlay=0:0,format=yuv420p[o]'
+   filt=f'[0:v]zoompan=z=\'min(zoom+0.0004,1.04)\':x=\'iw/2-(iw/zoom/2)+sin(on/50)*8\':y=\'ih/2-(ih/zoom/2)\':d={frames}:s={w}x{h}:fps={fps},format=rgba[b];[1:v]zoompan=z=\'min(zoom+0.0008,1.07)\':x=\'iw/2-(iw/zoom/2)+sin(on/35)*14\':y=\'ih/2-(ih/zoom/2)\':d={frames}:s={w}x{h}:fps={fps},format=rgba[m];[2:v]zoompan=z=\'min(zoom+0.0012,1.10)\':x=\'iw/2-(iw/zoom/2)+sin(on/25)*20\':y=\'ih/2-(ih/zoom/2)\':d={frames}:s={w}x{h}:fps={fps},format=rgba[f];[3:v]zoompan=z=1.0001:d={frames}:s={w}x{h}:fps={fps},format=rgba[t];[b][m]overlay=0:0[x];[x][f]overlay=0:0[y];[y][t]overlay=0:0,format=yuv420p[o]'
    run(['ffmpeg','-hide_banner','-loglevel','error','-y','-loop','1','-i',str(td/f'bg_{i}.png'),'-loop','1','-i',str(td/f'mid_{i}.png'),'-loop','1','-i',str(td/f'fg_{i}.png'),'-loop','1','-i',str(td/f'txt_{i}.png'),'-filter_complex',filt,'-map','[o]','-t',str(dur),'-r',str(fps),'-pix_fmt','yuv420p',str(clip)]); clips.append(clip)
   concat=td/'concat.txt'; concat.write_text('\n'.join("file '"+c.as_posix()+"'" for c in clips)+'\n')
   run(['ffmpeg','-hide_banner','-loglevel','error','-y','-f','concat','-safe','0','-i',str(concat),'-c','copy',str(out)])
