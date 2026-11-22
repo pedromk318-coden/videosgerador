@@ -29,6 +29,7 @@ def build_story(script,genre="cinematográfico"):
         title=" ".join(beat.split()[:7]).strip(" ,.;:!?") or f"Cena {i}"
         scenes.append({"duration":estimate_duration(beat),"title":title,"text":beat,"narration":beat,
           "visual_prompt":"High-quality stylized 3D animated film, expressive consistent characters, detailed cinematic environment, realistic materials, cinematic lighting, depth of field, vertical 9:16. Depict this exact story moment: "+beat,
+          "image_path":f"assets/scenes/scene_{i:03d}.png",
           "background":["#17243b","#536b83"]})
     return {"title":script[:100],"genre":genre,"format":"9:16","fps":24,"resolution":{"width":720,"height":1280},"scene_planning":"automatic_from_script","scenes":scenes}
 
