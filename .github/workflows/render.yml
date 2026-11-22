@@ -2,10 +2,20 @@ name: Render video
 on:
   workflow_dispatch:
     inputs:
-      output_name:
-        description: Nome do MP4 gerado
-        required: false
-        default: video.mp4
+      idea:
+        description: "Descreva o vídeo que deseja gerar"
+        required: true
+        type: string
+      scene_count:
+        description: "Quantidade de cenas (1 a 10)"
+        required: true
+        default: "6"
+        type: string
+      scene_duration:
+        description: "Duração de cada cena em segundos"
+        required: true
+        default: "10"
+        type: string
 jobs:
   render:
     runs-on: ubuntu-latest
@@ -21,7 +31,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ffmpeg
           python -m pip install -r requirements.txt
-      - name: Render
+      - name: Create scene outline from idea
+        run: python src/idea_to_scenes.py --idea "${{ inputs.idea }}" --count "${{ inputs.scene_count }}" --duration "${{ inputs.scene_duration }}" --output scenes.json
+      - name: Render video
         run: python src/render.py --input scenes.json --output output/video.mp4
       - name: Upload MP4 artifact
         uses: actions/upload-artifact@v4
