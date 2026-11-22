@@ -51,6 +51,10 @@ jobs:
         run: python src/project_validator.py --input "${{ steps.project.outputs.path }}" --output scenes.json
       - name: Render animation without AI
         run: blender -b -t 2 --python src/blender_engine.py -- --input scenes.json --output output/video.mp4
+      - name: Verify rendered frames
+        run: |
+          test -d output/frames
+          test -n "$(find output/frames -maxdepth 1 -type f -name 'frame_*.png' -print -quit)" || { echo "Blender não gerou quadros PNG"; exit 1; }
       - name: Assemble MP4 with FFmpeg
         run: |
           mkdir -p output
