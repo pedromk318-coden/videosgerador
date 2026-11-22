@@ -3,7 +3,7 @@
   "title": "E se você acordasse com 5 metros de altura?",
   "style": "animacao cinematografica 3D",
   "format": "9:16",
-  "fps": 20,
+  "fps": 24,
   "resolution": {
     "width": 480,
     "height": 854
@@ -17,24 +17,6 @@
       "action": "O protagonista desperta na cama e tenta se sentar, percebendo que algo está diferente.",
       "camera": "slow_push_in",
       "narration": "Imagine acordar numa manhã normal... mas perceber que seu corpo mudou."
-    },
-    {
-      "title": "Tudo ficou pequeno",
-      "duration": 3,
-      "visual_description": "O protagonista enorme se levanta no quarto; a cama e os móveis parecem pequenos perto dele.",
-      "environment": "city",
-      "action": "O protagonista fica de pé com cuidado e olha para as próprias mãos e para os móveis ao redor.",
-      "camera": "low_angle_reveal",
-      "narration": "Você se levanta e percebe: agora tem cinco metros de altura!"
-    },
-    {
-      "title": "O mundo lá embaixo",
-      "duration": 4,
-      "visual_description": "Visão cinematográfica do protagonista de cinco metros perto da janela, com prédios e pessoas ao fundo em escala muito menor.",
-      "environment": "city",
-      "action": "O protagonista se aproxima da janela, olha para a rua e reage surpreso ao perceber a própria altura.",
-      "camera": "wide_reveal",
-      "narration": "A porta parece minúscula. E sair de casa? Esse seria só o começo do problema."
     }
   ],
   "description": "Renderização 3D procedural com Blender, cenário de quarto em escala real e protagonista de 5 metros. Sem IA/API. Compatibilidade do motor Eevee corrigida. | Render por quadros PNG e montagem MP4 com FFmpeg | Compatibilidade Action Blender 5 corrigida | Dependências EGL/Mesa para renderização headless"
