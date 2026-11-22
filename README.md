@@ -23,7 +23,7 @@ Inspirado em práticas e ferramentas de produção cinematográfica do pacote en
 - Os cenários são procedurais e abstratos; não são imagens de IA que interpretem a narrativa.
 - O roteiro é determinístico/templateado, não gerado por modelo de linguagem.
 - Parallax atual é uma simulação por camadas com movimentos de câmera, não rig 3D/depth map.
-- Narração, trilha, efeitos sonoros e legendas sincronizadas ainda não estão integrados.
+- O workflow agora gera um arquivo SRT por cena e adiciona uma cama sonora sintética suave. Ainda não existe voz narrada, trilha musical produzida artisticamente ou efeitos específicos de cada cena.
 - O workflow precisa ser executado para validar o resultado final do render atualizado.
 
 ## Stack
