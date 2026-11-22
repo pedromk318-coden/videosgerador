@@ -1,0 +1,31 @@
+{
+  "project_name": "A lenda da floresta",
+  "title": "A lenda da floresta",
+  "style": "fantasia",
+  "format": "9:16",
+  "fps": 20,
+  "resolution": {
+    "width": 480,
+    "height": 854
+  },
+  "scenes": [
+    {
+      "title": "O chamado",
+      "duration": 7,
+      "visual_description": "Uma floresta antiga ao amanhecer, névoa entre as árvores e luz dourada ao fundo.",
+      "environment": "forest",
+      "action": "O protagonista caminha lentamente pela trilha.",
+      "camera": "slow_push_in",
+      "narration": "Numa floresta esquecida, um jovem ouviu um chamado misterioso."
+    },
+    {
+      "title": "A descoberta",
+      "duration": 8,
+      "visual_description": "Uma clareira iluminada por uma luz azul misteriosa.",
+      "environment": "forest",
+      "action": "O protagonista corre até a clareira e para diante de uma pedra brilhante.",
+      "camera": "wide_to_close",
+      "narration": "Ao chegar à clareira, encontrou uma pedra que parecia guardar um segredo antigo."
+    }
+  ]
+}
