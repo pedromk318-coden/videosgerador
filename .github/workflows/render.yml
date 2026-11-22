@@ -43,6 +43,10 @@ jobs:
         run: python src/idea_to_scenes.py --idea "$VIDEO_IDEA" --count "$SCENE_COUNT" --duration "$SCENE_DURATION" --genre "$VIDEO_GENRE" --output scenes.json
       - name: Render video
         run: python src/render.py --input scenes.json --output output/video.mp4
+      - name: Generate scene subtitles (SRT)
+        run: python src/subtitles.py --input scenes.json --output output/subtitles.srt
+      - name: Add procedural ambient audio
+        run: python src/audio_engine.py --input scenes.json --video output/video.mp4 --output output/video_with_audio.mp4
       - name: Upload MP4
         uses: actions/upload-artifact@v4
         with:
