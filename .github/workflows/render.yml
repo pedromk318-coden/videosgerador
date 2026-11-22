@@ -32,8 +32,12 @@ jobs:
           sudo apt-get install -y ffmpeg
           python -m pip install -r requirements.txt
       - name: Create scene outline from idea
-        run: python src/idea_to_scenes.py --idea "${{ inputs.idea }}" --count "${{ inputs.scene_count }}" --duration "${{ inputs.scene_duration }}" --output scenes.json
-      - name: Render video
+        env:
+          VIDEO_IDEA: ${{ inputs.idea }}
+          SCENE_COUNT: ${{ inputs.scene_count }}
+          SCENE_DURATION: ${{ inputs.scene_duration }}
+        run: python src/idea_to_scenes.py --idea "$VIDEO_IDEA" --count "$SCENE_COUNT" --duration "$SCENE_DURATION" --output scenes.json
+      - name: Render
         run: python src/render.py --input scenes.json --output output/video.mp4
       - name: Upload MP4 artifact
         uses: actions/upload-artifact@v4
