@@ -1,26 +1,17 @@
-name: Render video with procedural engine
+name: Render video from complete script
 on:
   workflow_dispatch:
     inputs:
-      idea:
-        description: "Ideia/tema do vídeo"
+      script:
+        description: "Cole aqui o roteiro completo da história"
         required: true
-        type: string
-      scene_count:
-        description: "Quantidade de cenas"
-        required: true
-        default: "6"
-        type: string
-      scene_duration:
-        description: "Segundos por cena"
-        required: true
-        default: "10"
         type: string
       genre:
-        description: "Gênero/estilo da história"
+        description: "Clima visual"
         required: true
-        default: "mistério"
-        type: string
+        default: "cinematográfico"
+        type: choice
+        options: [cinematográfico, fantasia, aventura, mistério, drama, ficção científica]
 jobs:
   render:
     runs-on: ubuntu-latest
@@ -29,25 +20,25 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Install FFmpeg and Python dependencies
+      - name: Install FFmpeg and dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg
           python -m pip install -r requirements.txt
-      - name: Create scene script from idea
+      - name: Build scenes and timings from script
         env:
-          VIDEO_IDEA: ${{ inputs.idea }}
-          SCENE_COUNT: ${{ inputs.scene_count }}
-          SCENE_DURATION: ${{ inputs.scene_duration }}
+          VIDEO_SCRIPT: ${{ inputs.script }}
           VIDEO_GENRE: ${{ inputs.genre }}
-        run: python src/idea_to_scenes.py --idea "$VIDEO_IDEA" --count "$SCENE_COUNT" --duration "$SCENE_DURATION" --genre "$VIDEO_GENRE" --output scenes.json
+        run: |
+          printf '%s' "$VIDEO_SCRIPT" > roteiro.txt
+          python src/idea_to_scenes.py --script-file roteiro.txt --genre "$VIDEO_GENRE" --output scenes.json
       - name: Render video
         run: python src/render.py --input scenes.json --output output/video.mp4
-      - name: Generate scene subtitles (SRT)
+      - name: Generate subtitles
         run: python src/subtitles.py --input scenes.json --output output/subtitles.srt
-      - name: Add procedural ambient audio
+      - name: Add ambient audio
         run: python src/audio_engine.py --input scenes.json --video output/video.mp4 --output output/video_with_audio.mp4
-      - name: Upload video and subtitles
+      - name: Upload complete package
         uses: actions/upload-artifact@v4
         with:
           name: video-completo
