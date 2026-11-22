@@ -120,8 +120,7 @@ def main():
             obj.keyframe_insert(data_path="location",frame=start)
         start=end+1
     scene=bpy.context.scene
-    scene.render.engine='BLENDER_EEVEE_NEXT' if hasattr(scene,'eevee') is False else 'BLENDER_EEVEE'
-    scene.eevee.taa_render_samples=16 if hasattr(scene,'eevee') else 16
+    scene.render.engine='BLENDER_EEVEE_NEXT' if bpy.app.version >= (4,0,0) else 'BLENDER_EEVEE'
     scene.render.resolution_x=w; scene.render.resolution_y=h; scene.render.resolution_percentage=100
     scene.render.fps=fps; scene.frame_start=1; scene.frame_end=max(2,start-1)
     scene.render.image_settings.file_format='FFMPEG'
