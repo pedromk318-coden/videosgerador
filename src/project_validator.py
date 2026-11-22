@@ -43,7 +43,7 @@ def main():
             "title":str(scene.get("title") or f"Cena {i}"),
             "text":str(scene.get("text") or text),
             "narration":text,
-            "visual_prompt":str(scene.get("visual_prompt") or scene.get("visual_description") or ""),
+            "visual_prompt":" ".join(str(scene.get(k,"")) for k in ("visual_prompt","visual_description","environment","action","camera") if scene.get(k)),
         })
     result={
         "title":title,"genre":style,
