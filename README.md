@@ -1,27 +1,16 @@
-# videosgerador
+# VideosGerador 🎬
 
-Gerador inicial de vídeos verticais (9:16) a partir de cenas em JSON. A primeira versão cria cartões animados com movimento de zoom/pan usando FFmpeg; é uma base para evoluir para imagens, Parallax 2.5D, narração e legendas.
+Primeira versão do gerador de vídeos verticais (9:16), com roteiro-base por ideia e renderização MP4 usando cards animados.
 
-## Requisitos
-- Python 3.10+
-- FFmpeg instalado e disponível no PATH
-- Pillow
+## Interface
+Abra `index.html` no navegador. Escreva a ideia, escolha quantidade e duração das cenas e baixe `scenes.json`.
 
-## Uso local
+## Gerar no GitHub Actions
+1. Abra a aba **Actions**.
+2. Selecione **Render video** e clique em **Run workflow**.
+3. Preencha a ideia, número de cenas (1–10) e duração (1–60 segundos).
+4. Inicie o workflow e espere concluir.
+5. Baixe o artefato `video-mp4`.
 
-```bash
-pip install -r requirements.txt
-python src/render.py --input scenes.json --output output/video.mp4
-```
-
-Cada cena tem duração padrão de 10 segundos. A resolução padrão é 720x1280 (vertical).
-
-## GitHub Actions
-Abra **Actions → Render video → Run workflow**. O vídeo final será anexado à execução como artifact `video-mp4`.
-
-
-## Próximas etapas
-1. Gerar imagens de cada cena
-2. Criar camadas de profundidade para Parallax 2.5D
-3. Adicionar narração, trilha/efeitos e legendas sincronizadas
-4. Interface web para escolher tema e iniciar renderização
+## Limitações desta versão
+A ideia é distribuída em cartões de cena com textos-base e fundos em gradiente com zoom. Ainda não usa IA para criar histórias completas, imagens, narração, legendas ou Parallax 2.5D real. Esses recursos serão adicionados gradualmente.
