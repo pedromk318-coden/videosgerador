@@ -134,11 +134,7 @@ def main():
     scene.render.filepath=str((frames_dir / 'frame_').resolve())
     scene.view_settings.view_transform='Standard'
     scene.camera.data.dof.use_dof=True; scene.camera.data.dof.focus_object=person[0]; scene.camera.data.dof.aperture_fstop=5.6
-    # Smooth interpolation for cinematic camera motion.
-    for obj in (cam,):
-        if obj.animation_data and obj.animation_data.action:
-            for fc in obj.animation_data.action.fcurves:
-                for kp in fc.keyframe_points: kp.interpolation='BEZIER'
+    # Keyframes use Blender's default Bezier interpolation.
     Path(args.output).parent.mkdir(parents=True,exist_ok=True)
     scene.frame_set(1)
     bpy.ops.render.render(animation=True)
