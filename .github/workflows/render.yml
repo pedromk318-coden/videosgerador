@@ -45,12 +45,12 @@ jobs:
       - name: Install FFmpeg and dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y ffmpeg
+          sudo apt-get install -y ffmpeg blender
           python -m pip install -r requirements.txt
       - name: Validate project and prepare scenes
         run: python src/project_validator.py --input "${{ steps.project.outputs.path }}" --output scenes.json
       - name: Render animation without AI
-        run: python src/animation_engine.py --input scenes.json --output output/video.mp4
+        run: blender -b -t 2 --python src/blender_engine.py -- --input scenes.json --output output/video.mp4
       - name: Generate subtitles
         run: python src/subtitles.py --input scenes.json --output output/subtitles.srt
       - name: Add ambient audio
