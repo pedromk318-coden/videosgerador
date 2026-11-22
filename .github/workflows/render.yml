@@ -3,43 +3,47 @@ on:
   workflow_dispatch:
     inputs:
       idea:
-        description: "Descreva o vídeo que deseja gerar"
+        description: "Ideia/tema do vídeo"
         required: true
         type: string
       scene_count:
-        description: "Quantidade de cenas (1 a 10)"
+        description: "Quantidade de cenas"
         required: true
         default: "6"
         type: string
       scene_duration:
-        description: "Duração de cada cena em segundos"
+        description: "Segundos por cena"
         required: true
         default: "10"
+        type: string
+      genre:
+        description: "Gênero/estilo da história"
+        required: true
+        default: "mistério"
         type: string
 jobs:
   render:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Install FFmpeg and dependencies
+      - name: Install FFmpeg and Python dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg
           python -m pip install -r requirements.txt
-      - name: Create scene outline from idea
+      - name: Create scene script from idea
         env:
           VIDEO_IDEA: ${{ inputs.idea }}
           SCENE_COUNT: ${{ inputs.scene_count }}
           SCENE_DURATION: ${{ inputs.scene_duration }}
-        run: python src/idea_to_scenes.py --idea "$VIDEO_IDEA" --count "$SCENE_COUNT" --duration "$SCENE_DURATION" --output scenes.json
-      - name: Render
+          VIDEO_GENRE: ${{ inputs.genre }}
+        run: python src/idea_to_scenes.py --idea "$VIDEO_IDEA" --count "$SCENE_COUNT" --duration "$SCENE_DURATION" --genre "$VIDEO_GENRE" --output scenes.json
+      - name: Render video
         run: python src/render.py --input scenes.json --output output/video.mp4
-      - name: Upload MP4 artifact
+      - name: Upload MP4
         uses: actions/upload-artifact@v4
         with:
           name: video-mp4
