@@ -49,7 +49,7 @@ jobs:
           test -f "$selected" || { echo "Arquivo não encontrado: $selected"; exit 1; }
           echo "Projeto selecionado: $selected"
           echo "path=$selected" >> "$GITHUB_OUTPUT"
-          if [ "$EVENT_NAME" = "push" ]; then mode="normal"; else mode="$REQUESTED_MODE"; fi
+          if [ "$EVENT_NAME" = "push" ]; then mode="preview"; else mode="$REQUESTED_MODE"; fi
           echo "mode=$mode" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-python@v5
         with:
