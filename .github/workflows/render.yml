@@ -20,6 +20,8 @@ jobs:
       - name: Select project file
         id: project
         shell: bash
+        env:
+          REQUESTED_PROJECT: ${{ inputs.project_file }}
         run: |
           if [ "${{ github.event_name }}" = "push" ]; then
             mapfile -t files < <(git diff-tree --no-commit-id --name-only -r HEAD -- 'projects/*.json')
@@ -29,7 +31,7 @@ jobs:
             fi
             selected="${files[0]}"
           else
-            selected="${{ inputs.project_file }}"
+            selected="$REQUESTED_PROJECT"
           fi
           case "$selected" in projects/*.json) ;; *) echo "O arquivo deve ficar dentro de projects/ e terminar em .json"; exit 1;; esac
           test -f "$selected" || { echo "Arquivo não encontrado: $selected"; exit 1; }
