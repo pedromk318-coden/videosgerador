@@ -45,11 +45,19 @@ jobs:
       - name: Install FFmpeg and dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y ffmpeg blender
+          sudo apt-get install -y ffmpeg blender libegl1 libgl1 libgl1-mesa-dri libgles2 libxrender1 libxext6 libsm6
           python -m pip install -r requirements.txt
       - name: Validate project and prepare scenes
         run: python src/project_validator.py --input "${{ steps.project.outputs.path }}" --output scenes.json
+      - name: Verify Blender headless runtime
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+          EGL_PLATFORM: "surfaceless"
+        run: blender -b -t 2 --python-expr "import bpy; print('Blender headless OK:', bpy.app.version_string)"
       - name: Render animation without AI
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+          EGL_PLATFORM: "surfaceless"
         run: blender -b -t 2 --python src/blender_engine.py -- --input scenes.json --output output/video.mp4
       - name: Verify rendered frames
         run: |
