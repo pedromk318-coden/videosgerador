@@ -1,0 +1,37 @@
+{
+  "title": "A cidade que acordava no escuro",
+  "resolution": {
+    "width": 720,
+    "height": 1280
+  },
+  "fps": 24,
+  "scenes": [
+    {
+      "duration": 10,
+      "title": "Uma cidade sem amanhecer",
+      "text": "Há muitos anos, uma cidade vivia sob um céu que nunca clareava.",
+      "background": [
+        "#07162b",
+        "#183b58"
+      ]
+    },
+    {
+      "duration": 10,
+      "title": "Uma luz distante",
+      "text": "Até que uma pequena luz surgiu além das montanhas.",
+      "background": [
+        "#10243a",
+        "#5a416b"
+      ]
+    },
+    {
+      "duration": 10,
+      "title": "O primeiro raio",
+      "text": "Curiosos, os moradores seguiram a luz e viram o horizonte mudar.",
+      "background": [
+        "#35254c",
+        "#e58b65"
+      ]
+    }
+  ]
+}
