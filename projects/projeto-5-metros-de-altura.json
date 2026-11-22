@@ -37,5 +37,5 @@
       "narration": "A porta parece minúscula. E sair de casa? Esse seria só o começo do problema."
     }
   ],
-  "description": "Renderização 3D procedural com Blender, cenário de quarto em escala real e protagonista de 5 metros. Sem IA/API. Compatibilidade do motor Eevee corrigida."
+  "description": "Renderização 3D procedural com Blender, cenário de quarto em escala real e protagonista de 5 metros. Sem IA/API. Compatibilidade do motor Eevee corrigida. | Render por quadros PNG e montagem MP4 com FFmpeg"
 }
