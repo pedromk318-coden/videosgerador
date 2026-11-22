@@ -1,50 +1,43 @@
-"""Narrative engine: turns a short idea into a structured multi-scene story.
-This is deterministic scaffolding, not an AI model. Replace/adapt with an LLM API later.
-"""
+"""Automatic script-to-scenes planner; uses heuristics, not an AI model."""
 from __future__ import annotations
-import argparse, json
+import argparse, json, re
 from pathlib import Path
 
-def build_story(idea: str, count: int = 6, duration: int = 10, genre: str = "mistério"):
-    if not idea.strip(): raise ValueError("Informe uma ideia.")
-    if not 1 <= count <= 12: raise ValueError("count deve ficar entre 1 e 12.")
-    if not 1 <= duration <= 60: raise ValueError("duration deve ficar entre 1 e 60.")
-    structure = [
-        ("Abertura", "Apresente o protagonista e o ambiente, estabelecendo o clima."),
-        ("Sinal estranho", "Um detalhe inesperado quebra a normalidade e desperta curiosidade."),
-        ("Investigação", "O protagonista segue uma pista e descobre algo incomum."),
-        ("Complicação", "Um obstáculo muda os planos e aumenta a tensão."),
-        ("Revelação", "Uma descoberta conecta os acontecimentos anteriores."),
-        ("Clímax", "O protagonista precisa tomar uma decisão importante."),
-        ("Consequência", "Mostre o impacto da decisão e uma nova informação."),
-        ("Encerramento", "Finalize com uma imagem memorável e um gancho opcional."),
-        ("Gancho", "Sugira que ainda existe algo desconhecido."),
-        ("Epílogo", "Feche o episódio sem perder o clima da narrativa."),
-        ("Nova pista", "Apresente uma pista para uma possível continuação."),
-        ("Final", "Conclua a história de forma clara."),
-    ]
+def split_script(script):
+    paragraphs=[p.strip() for p in re.split(r"\n\s*\n+",script.strip()) if p.strip()]
+    beats=[]
+    for paragraph in paragraphs:
+        sentences=[s.strip() for s in re.split(r"(?<=[.!?])\s+",paragraph) if s.strip()]
+        chunk=[]; words=0
+        for sentence in sentences:
+            n=len(sentence.split())
+            if chunk and words+n>38:
+                beats.append(" ".join(chunk)); chunk=[]; words=0
+            chunk.append(sentence); words+=n
+        if chunk: beats.append(" ".join(chunk))
+    return beats
+
+def estimate_duration(text):
+    return round(max(3.0,min(18.0,len(text.split())/2.4+1.5)),1)
+
+def build_story(script,genre="cinematográfico"):
+    script=script.strip()
+    if not script: raise ValueError("Cole o roteiro completo antes de gerar.")
+    beats=split_script(script) or [script]
     scenes=[]
-    for i in range(count):
-        label, beat=structure[i]
-        scenes.append({
-            "duration": duration,
-            "title": f"{label} — Cena {i+1}",
-            "text": f"{idea.strip()} {beat}",
-            "visual_prompt": f"Vertical cinematic 2.5D parallax scene, {genre}, visualizing: {idea.strip()}. Beat: {beat}. Layered foreground, midground and background, atmospheric lighting, no text in image.",
-            "narration": f"{idea.strip()} — {beat}",
-            "background": ["#0b1e35","#34526e"] if i%2==0 else ["#17132d","#533a6e"]
-        })
-    return {"title":idea.strip(),"genre":genre,"format":"9:16","fps":24,"resolution":{"width":720,"height":1280},"scenes":scenes}
+    for i,beat in enumerate(beats,1):
+        title=" ".join(beat.split()[:7]).strip(" ,.;:!?") or f"Cena {i}"
+        scenes.append({"duration":estimate_duration(beat),"title":title,"text":beat,"narration":beat,
+          "visual_prompt":"High-quality stylized 3D animated film, expressive consistent characters, detailed cinematic environment, realistic materials, cinematic lighting, depth of field, vertical 9:16. Depict this exact story moment: "+beat,
+          "background":["#17243b","#536b83"]})
+    return {"title":script[:100],"genre":genre,"format":"9:16","fps":24,"resolution":{"width":720,"height":1280},"scene_planning":"automatic_from_script","scenes":scenes}
 
 def main():
-    p=argparse.ArgumentParser()
-    p.add_argument("--idea",required=True)
-    p.add_argument("--count",type=int,default=6)
-    p.add_argument("--duration",type=int,default=10)
-    p.add_argument("--genre",default="mistério")
-    p.add_argument("--output",default="scenes.json")
-    a=p.parse_args()
-    data=build_story(a.idea,a.count,a.duration,a.genre)
+    p=argparse.ArgumentParser(description="Divide a complete script into scenes automatically")
+    p.add_argument("--script"); p.add_argument("--script-file"); p.add_argument("--idea",help="Legacy alias")
+    p.add_argument("--genre",default="cinematográfico"); p.add_argument("--output",default="scenes.json"); a=p.parse_args()
+    script=Path(a.script_file).read_text(encoding="utf-8") if a.script_file else (a.script or a.idea or "")
+    data=build_story(script,a.genre)
     Path(a.output).write_text(json.dumps(data,ensure_ascii=False,indent=2),encoding="utf-8")
-    print(f"Roteiro-base: {a.count} cenas x {a.duration}s -> {a.output}")
+    print(f"Planejamento: {len(data['scenes'])} cenas, aproximadamente {sum(s['duration'] for s in data['scenes']):.1f}s")
 if __name__=="__main__": main()
