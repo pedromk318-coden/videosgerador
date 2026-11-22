@@ -50,6 +50,21 @@ def draw_layers(scene,size,i,seedtxt,genre,folder):
  for x in (w//20,19*w//20):
   for _ in range(5):
    y=rng.randint(h//2,h); ex=x+rng.choice([-1,1])*rng.randint(w//30,w//10); f.line((x,y,ex,y-rng.randint(20,130)),fill=(4,12,20,215),width=max(2,w//120))
+ # Consistent protagonist silhouette, generated from the idea seed; foreground gives depth.
+ character=Image.new('RGBA',size); cd=ImageDraw.Draw(character); cx=w//2+rng.randint(-w//5,w//5); ground=int(h*.84); scale=rng.uniform(.82,1.18); head=int(w*.075*scale); bodyh=int(h*.22*scale)
+ skin=(9,15,24,245); coat=(5,10,18,235)
+ cd.ellipse((cx-head,ground-bodyh-head*2,cx+head,ground-bodyh),fill=skin)
+ # torso, shoulders, arms and legs as a clean, non-detailed silhouette
+ shoulder=int(head*2.6); torso=int(bodyh*.62)
+ cd.polygon([(cx-shoulder,ground-bodyh+head),(cx+shoulder,ground-bodyh+head),(cx+head,ground-torso),(cx-head,ground-torso)],fill=coat)
+ arm=int(head*1.1)
+ cd.line((cx-shoulder,ground-bodyh+head*2,cx-shoulder-arm,ground-torso+head),fill=coat,width=max(4,head//2))
+ cd.line((cx+shoulder,ground-bodyh+head*2,cx+shoulder+arm,ground-torso+head),fill=coat,width=max(4,head//2))
+ legw=max(5,head//2)
+ cd.polygon([(cx-head,ground-torso,cx-legw,ground),(cx-legw,ground),(cx,ground-torso)],fill=coat)
+ cd.polygon([(cx+head,ground-torso),(cx+legw,ground),(cx,ground-torso)],fill=coat)
+ # Soft rim-light separates the figure from the background.
+ character=character.filter(ImageFilter.GaussianBlur(1.2)); fg=Image.alpha_composite(fg,character)
  tx=Image.new('RGBA',size); t=ImageDraw.Draw(tx); margin=w//13; yy=h//7; title=str(scene.get('title',f'Scene {i}')); body=str(scene.get('text','')); tf=font(w//16); bf=font(w//27)
  t.rounded_rectangle((margin,yy,w-margin,h//2),radius=20,fill=(2,8,16,100),outline=(255,255,255,35),width=2); yy+=h//22
  for line in textwrap(t,title,tf,w-2*margin-25): t.text((margin+12,yy),line,font=tf,fill='white',stroke_width=1,stroke_fill=(0,0,0,120)); yy+=tf.size+6
