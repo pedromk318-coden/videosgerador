@@ -50,21 +50,48 @@ def draw_layers(scene,size,i,seedtxt,genre,folder):
  for x in (w//20,19*w//20):
   for _ in range(5):
    y=rng.randint(h//2,h); ex=x+rng.choice([-1,1])*rng.randint(w//30,w//10); f.line((x,y,ex,y-rng.randint(20,130)),fill=(4,12,20,215),width=max(2,w//120))
- # Consistent protagonist silhouette, generated from the idea seed; foreground gives depth.
- character=Image.new('RGBA',size); cd=ImageDraw.Draw(character); cx=w//2+rng.randint(-w//5,w//5); ground=int(h*.84); scale=rng.uniform(.82,1.18); head=int(w*.075*scale); bodyh=int(h*.22*scale)
- skin=(9,15,24,245); coat=(5,10,18,235)
- cd.ellipse((cx-head,ground-bodyh-head*2,cx+head,ground-bodyh),fill=skin)
- # torso, shoulders, arms and legs as a clean, non-detailed silhouette
- shoulder=int(head*2.6); torso=int(bodyh*.62)
- cd.polygon([(cx-shoulder,ground-bodyh+head),(cx+shoulder,ground-bodyh+head),(cx+head,ground-torso),(cx-head,ground-torso)],fill=coat)
- arm=int(head*1.1)
- cd.line((cx-shoulder,ground-bodyh+head*2,cx-shoulder-arm,ground-torso+head),fill=coat,width=max(4,head//2))
- cd.line((cx+shoulder,ground-bodyh+head*2,cx+shoulder+arm,ground-torso+head),fill=coat,width=max(4,head//2))
- legw=max(5,head//2)
- cd.polygon([(cx-head,ground-torso),(cx-legw,ground),(cx,ground-torso)],fill=coat)
- cd.polygon([(cx+head,ground-torso),(cx+legw,ground),(cx,ground-torso)],fill=coat)
- # Soft rim-light separates the figure from the background.
- character=character.filter(ImageFilter.GaussianBlur(1.2)); fg=Image.alpha_composite(fg,character)
+ # Protagonist silhouette with a pose selected from the scene beat.
+ character=Image.new('RGBA',size); cd=ImageDraw.Draw(character)
+ cx=w//2+rng.randint(-w//5,w//5); ground=int(h*.84); scale=rng.uniform(.82,1.18)
+ head=int(w*.075*scale); bodyh=int(h*.22*scale); shoulder=int(head*2.6)
+ coat=(5,10,18,238); skin=(9,15,24,245); torso=int(bodyh*.62)
+ scene_words=(str(scene.get('title',''))+' '+str(scene.get('text',''))+' '+str(scene.get('narration',''))).lower()
+ if any(k in scene_words for k in ('corre','foge','persegue','corrida','run','escape')):
+  pose='running'
+ elif any(k in scene_words for k in ('senta','descansa','observa sentado','sitting')):
+  pose='sitting'
+ elif any(k in scene_words for k in ('aponta','mostra','indica','point')):
+  pose='pointing'
+ elif any(k in scene_words for k in ('caminha','anda','segue','viaja','walk')):
+  pose='walking'
+ else:
+  pose=('walking','pointing','standing')[i%3]
+ # Head and torso stay visually consistent between shots.
+ head_y=ground-bodyh-head*2
+ cd.ellipse((cx-head,head_y,cx+head,head_y+head*2),fill=skin)
+ cd.polygon([(cx-shoulder,ground-bodyh+head),(cx+shoulder,ground-bodyh+head),
+             (cx+head,ground-torso),(cx-head,ground-torso)],fill=coat)
+ arm=max(5,head//2); leg=max(6,head//2)
+ if pose=='running':
+  cd.line((cx-shoulder,ground-bodyh+head*2,cx-shoulder-arm*2,ground-torso+head),fill=coat,width=arm)
+  cd.line((cx+shoulder,ground-bodyh+head*2,cx+shoulder+arm,ground-bodyh+head*3),fill=coat,width=arm)
+  cd.polygon([(cx-head,ground-torso),(cx-leg*2,ground-leg),(cx-leg*5,ground-leg//2),(cx,ground-torso)],fill=coat)
+  cd.polygon([(cx+head,ground-torso),(cx+leg*3,ground-leg*3),(cx+leg*5,ground-leg*2),(cx,ground-torso)],fill=coat)
+ elif pose=='sitting':
+  cd.line((cx-shoulder,ground-bodyh+head*2,cx-shoulder-arm,ground-torso+head),fill=coat,width=arm)
+  cd.line((cx+shoulder,ground-bodyh+head*2,cx+shoulder+arm,ground-torso+head),fill=coat,width=arm)
+  cd.line((cx-head//2,ground-torso,cx+head*2,ground-torso+head*2),fill=coat,width=leg*2)
+  cd.line((cx+head//2,ground-torso,cx+head*3,ground-torso+head*2),fill=coat,width=leg*2)
+ else:
+  if pose=='pointing':
+   cd.line((cx-shoulder,ground-bodyh+head*2,cx-shoulder-arm,ground-torso+head),fill=coat,width=arm)
+   cd.line((cx+shoulder,ground-bodyh+head*2,cx+shoulder+head*3,ground-bodyh+head),fill=coat,width=arm)
+  else:
+   cd.line((cx-shoulder,ground-bodyh+head*2,cx-shoulder-arm,ground-torso+head),fill=coat,width=arm)
+   cd.line((cx+shoulder,ground-bodyh+head*2,cx+shoulder+arm,ground-torso+head),fill=coat,width=arm)
+  cd.polygon([(cx-head,ground-torso),(cx-leg,ground),(cx,ground-torso)],fill=coat)
+  cd.polygon([(cx+head,ground-torso),(cx+leg,ground),(cx,ground-torso)],fill=coat)
+ character=character.filter(ImageFilter.GaussianBlur(1.0)); fg=Image.alpha_composite(fg,character)
  tx=Image.new('RGBA',size); t=ImageDraw.Draw(tx); margin=w//13; yy=h//7; title=str(scene.get('title',f'Scene {i}')); body=str(scene.get('text','')); tf=font(w//16); bf=font(w//27)
  t.rounded_rectangle((margin,yy,w-margin,h//2),radius=20,fill=(2,8,16,100),outline=(255,255,255,35),width=2); yy+=h//22
  for line in textwrap(t,title,tf,w-2*margin-25): t.text((margin+12,yy),line,font=tf,fill='white',stroke_width=1,stroke_fill=(0,0,0,120)); yy+=tf.size+6
