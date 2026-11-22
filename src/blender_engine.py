@@ -61,6 +61,10 @@ def main():
     scenes=data.get("scenes",[])
     if not scenes: raise SystemExit("Projeto sem cenas.")
     res=data.get("resolution",{}); w=int(res.get("width",720)); h=int(res.get("height",1280)); fps=int(data.get("fps",24))
+    mode=os.environ.get("RENDER_MODE", data.get("render_mode", "normal")).lower()
+    profiles={"preview":35,"normal":75,"cinematic":100}
+    if mode not in profiles: mode="normal"
+    resolution_scale=profiles[mode]
     total=sum(float(s.get("duration",5)) for s in scenes)
     bpy.ops.object.select_all(action='SELECT'); bpy.ops.object.delete(use_global=False)
     # Materials
@@ -123,7 +127,7 @@ def main():
     scene=bpy.context.scene
     engine_ids={item.identifier for item in bpy.types.RenderSettings.bl_rna.properties["engine"].enum_items}
     scene.render.engine="BLENDER_EEVEE_NEXT" if "BLENDER_EEVEE_NEXT" in engine_ids else "BLENDER_EEVEE"
-    scene.render.resolution_x=w; scene.render.resolution_y=h; scene.render.resolution_percentage=100
+    scene.render.resolution_x=w; scene.render.resolution_y=h; scene.render.resolution_percentage=resolution_scale
     scene.render.fps=fps; scene.frame_start=1; scene.frame_end=max(2,start-1)
     # Blender 5 removed FFMPEG from image_settings.file_format. Render PNG frames;
     # the workflow assembles them into MP4 with the system FFmpeg afterwards.
@@ -133,7 +137,10 @@ def main():
     frames_dir.mkdir(parents=True,exist_ok=True)
     scene.render.filepath=str((frames_dir / 'frame_').resolve())
     scene.view_settings.view_transform='Standard'
-    scene.camera.data.dof.use_dof=True; scene.camera.data.dof.focus_object=person[0]; scene.camera.data.dof.aperture_fstop=5.6
+    scene.camera.data.dof.use_dof=(mode=="cinematic"); scene.camera.data.dof.focus_object=person[0]; scene.camera.data.dof.aperture_fstop=5.6
+    eevee=getattr(scene,"eevee",None)
+    if eevee and hasattr(eevee,"taa_render_samples"): eevee.taa_render_samples={"preview":8,"normal":16,"cinematic":32}[mode]
+    print("Render profile:", mode, "| resolution", resolution_scale, "%")
     # Keyframes use Blender's default Bezier interpolation.
     Path(args.output).parent.mkdir(parents=True,exist_ok=True)
     scene.frame_set(1)
