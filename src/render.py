@@ -61,7 +61,7 @@ def draw_layers(scene,size,i,seedtxt,genre,folder):
  cd.line((cx-shoulder,ground-bodyh+head*2,cx-shoulder-arm,ground-torso+head),fill=coat,width=max(4,head//2))
  cd.line((cx+shoulder,ground-bodyh+head*2,cx+shoulder+arm,ground-torso+head),fill=coat,width=max(4,head//2))
  legw=max(5,head//2)
- cd.polygon([(cx-head,ground-torso,cx-legw,ground),(cx-legw,ground),(cx,ground-torso)],fill=coat)
+ cd.polygon([(cx-head,ground-torso),(cx-legw,ground),(cx,ground-torso)],fill=coat)
  cd.polygon([(cx+head,ground-torso),(cx+legw,ground),(cx,ground-torso)],fill=coat)
  # Soft rim-light separates the figure from the background.
  character=character.filter(ImageFilter.GaussianBlur(1.2)); fg=Image.alpha_composite(fg,character)
