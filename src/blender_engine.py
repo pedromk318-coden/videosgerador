@@ -56,7 +56,8 @@ def build_character(mats):
 def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("--input",default="scenes.json"); ap.add_argument("--output",default="output/video.mp4")
-    args=ap.parse_args(); data=json.loads(Path(args.input).read_text(encoding="utf-8"))
+    argv=sys.argv[sys.argv.index("--")+1:] if "--" in sys.argv else []
+    args=ap.parse_args(argv); data=json.loads(Path(args.input).read_text(encoding="utf-8"))
     scenes=data.get("scenes",[])
     if not scenes: raise SystemExit("Projeto sem cenas.")
     res=data.get("resolution",{}); w=int(res.get("width",720)); h=int(res.get("height",1280)); fps=int(data.get("fps",24))
